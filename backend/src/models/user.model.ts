@@ -1,0 +1,31 @@
+import {User} from '../generated/prisma';
+import {prisma} from '../config/database';
+
+export const createUser = async (username: string, email: string, password_hash: string): Promise<User> => {
+    return prisma.user.create({
+        data: {username, email, password_hash},
+    });
+};
+
+export const getUsers = async (): Promise<User[]> => {
+    return prisma.user.findMany();
+};
+
+export const getUserById = async (id: number): Promise<User | null> => {
+    return prisma.user.findUnique({where: {id}});
+};
+
+export const getUserByEmail = async (email: string): Promise<User | null> => {
+    return prisma.user.findUnique({where: {email}});
+};
+
+export const updateUser = async (id: number, username: string): Promise<User> => {
+    return prisma.user.update({
+        where: {id},
+        data: {username},
+    });
+};
+
+export const deleteUser = async (id: number): Promise<User> => {
+    return prisma.user.delete({where: {id}});
+};
