@@ -1,9 +1,9 @@
 import {User} from '../generated/prisma';
 import {prisma} from '../config/database';
 
-export const createUser = async (username: string, email: string, password_hash: string): Promise<User> => {
+export const createUser = async (email: string, password_hash: string): Promise<User> => {
     return prisma.user.create({
-        data: {username, email, password_hash},
+        data: {email, password_hash},
     });
 };
 

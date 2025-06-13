@@ -18,9 +18,9 @@ datasource db {
 model User {
   id            Int      @id @default(autoincrement())
   uuid          String   @unique @default(uuid()) @db.Uuid
-  username      String   @unique @db.VarChar(255)
+  username      String?  @unique @db.VarChar(255)
   password_hash String   @db.VarChar(255)
-  email         String?  @unique @db.VarChar(255)
+  email         String   @unique @db.VarChar(255)
   is_active     Boolean  @default(true)
   created_at    DateTime @default(now())
   updated_at    DateTime @default(now())
@@ -50,7 +50,7 @@ model AccessToken {
   id         Int      @id @default(autoincrement())
   user_id    Int
   token      String   @db.VarChar(512)
-  uuid       String   @unique @default(uuid()) @db.Uuid
+  jti        String   @unique @default(uuid()) @db.Uuid
   expires_at DateTime
   created_at DateTime @default(now())
 
