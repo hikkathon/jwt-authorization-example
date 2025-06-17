@@ -2,9 +2,9 @@ import * as userModel from '../models/user.model';
 import * as mailService from './mail.service'
 import * as jwtService from "./jwt.service";
 import bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
 import ApiError from '../utils/apiError';
 import {User} from "../generated/prisma";
+import {API_URL} from '../config/env'
 
 type UserPublicInfo = Pick<User, 'uuid' | 'email' | 'is_active'>;
 
@@ -17,10 +17,19 @@ export const register = async (email: string, password: string) => {
         throw new ApiError(400, 'Password must be at least 8 characters long');
     }
     const passwordHash = await bcrypt.hash(password, 3);
-    const activationLink = uuidv4();
     const user:User = await userModel.createUser(email, passwordHash);
 
-    await mailService.sendActivationMail(email,activationLink);
+    const activationLink = await mailService.createMailLink(user.uuid)
+
+    await mailService.sendActivationMail(
+        email,
+        'Активация аккаунта',
+        ' ',
+        `<div>
+             <h1>Для активации перейдите по ссылке</h1>
+             <a href="${API_URL}/api/v1/activate/${activationLink.uuid}">Активировать</a>
+         </div>`
+    );
 
     const publicUserInfo: UserPublicInfo = {
         uuid: user.uuid,

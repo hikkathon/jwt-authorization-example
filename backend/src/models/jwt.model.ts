@@ -13,7 +13,7 @@ export const createAccessTokenForUser = async (userId: number, token: string, ex
     });
 };
 
-export const createRefreshTokenForUser = async (userId: number, token: string, expiresAt: Date) : Promise<RefreshToken>=> {
+export const createRefreshTokenForUser = async (userId: number, token: string, expiresAt: Date) : Promise<RefreshToken> => {
     return prisma.refreshToken.create({
         data: {
             user_id: userId,

@@ -28,6 +28,14 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
     }
 };
 
+export const activate = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
