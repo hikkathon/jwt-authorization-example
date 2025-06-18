@@ -1,5 +1,6 @@
 import {Request, Response, NextFunction} from 'express';
 import * as authService from '../../../services/auth.service';
+import {APP_URL} from "../../../config/env";
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -30,7 +31,10 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
 
 export const activate = async (req: Request, res: Response, next: NextFunction) => {
     try {
-
+        const activateLink = req.params.link;
+        await authService.activate(activateLink);
+        // @ts-ignore
+        return res.redirect(APP_URL);
     } catch (error) {
         next(error);
     }

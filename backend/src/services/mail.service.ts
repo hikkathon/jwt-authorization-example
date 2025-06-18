@@ -1,6 +1,7 @@
 import * as mailModel from '../models/mail.model'
 import nodemailer from 'nodemailer';
 import {SMTP_CONFIG} from '../config/env'
+import ApiError from '../utils/apiError';
 
 // @ts-ignore
 const transporter = nodemailer.createTransport(SMTP_CONFIG);
@@ -15,7 +16,7 @@ const transporter = nodemailer.createTransport(SMTP_CONFIG);
 export const sendActivationMail = async (to: string, subject: string, text: string, html = "") => {
     try {
         const info = await transporter.sendMail({
-            from: SMTP_CONFIG.auth.user,
+            from: SMTP_CONFIG.from,
             to,
             subject,
             text,
@@ -24,12 +25,12 @@ export const sendActivationMail = async (to: string, subject: string, text: stri
 
         console.log("Письмо отправлено:", info.messageId);
     } catch (error) {
-        console.error("Ошибка отправки:", error);
+        throw new ApiError(502, "Failed to send activation email. Please try again later.");
     }
 }
 
-export const getMailLink = async (uuid_user: string) => {
-    return await mailModel.getLinkById(uuid_user)
+export const getMailLink = async (uuid: string) => {
+    return await mailModel.getLink(uuid)
 }
 
 export const createMailLink = async (uuid_user: string) => {

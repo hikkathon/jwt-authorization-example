@@ -7,8 +7,8 @@ export const createLink = async (user_uuid: string): Promise<ActivateLink> => {
     });
 };
 
-export const getLinkById = async (user_uuid: string): Promise<ActivateLink | null> => {
-    return prisma.activateLink.findUnique({where: {user_uuid}});
+export const getLink = async (uuid: string): Promise<ActivateLink | null> => {
+    return prisma.activateLink.findUnique({where: {uuid}});
 };
 
 export const deleteLink = async (user_uuid: string): Promise<ActivateLink> => {
