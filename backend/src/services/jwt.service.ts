@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import ApiError from '../utils/apiError';
+import ApiError from '../exceptions/api.error';
 import { JWT_ACCESS_TOKEN_SECRET, JWT_REFRESH_TOKEN_SECRET } from '../config/env';
 import * as jwtModel from "../models/jwt.model";
 

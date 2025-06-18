@@ -2,7 +2,7 @@ import * as userModel from '../models/user.model';
 import * as mailService from './mail.service'
 import * as jwtService from "./jwt.service";
 import bcrypt from 'bcrypt';
-import ApiError from '../utils/apiError';
+import ApiError from '../exceptions/api.error';
 import {User} from "../generated/prisma";
 import {API_URL} from '../config/env'
 

@@ -1,7 +1,7 @@
 import * as mailModel from '../models/mail.model'
 import nodemailer from 'nodemailer';
 import {SMTP_CONFIG} from '../config/env'
-import ApiError from '../utils/apiError';
+import ApiError from '../exceptions/api.error';
 
 // @ts-ignore
 const transporter = nodemailer.createTransport(SMTP_CONFIG);

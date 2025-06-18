@@ -1,5 +1,5 @@
 import {Request, Response, NextFunction} from 'express';
-import ApiError from '../utils/apiError';
+import ApiError from '../exceptions/api.error';
 
 export default function errorMiddleware(
     err: Error | ApiError,
