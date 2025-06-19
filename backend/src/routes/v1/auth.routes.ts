@@ -9,6 +9,6 @@ router.post('/registration', authValidator.registration(), validate, authControl
 router.post('/login', authController.login);
 router.post('/logout', authController.logout);
 router.post('/refresh-token', authController.refreshToken);
-router.get('/activate/:link', authController.activate);
+router.get('/activate/:link', authValidator.activation(), validate, authController.activate);
 
 export default router;

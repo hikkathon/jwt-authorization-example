@@ -66,3 +66,11 @@ export const activate = async (activationLink: string) => {
 export const refreshToken = async (id: number, username: string) => {
 
 };
+
+export const setAuthCookies = (res: { cookie: Function }, refreshToken: string) => {
+    res.cookie('refreshToken', refreshToken, {
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: true
+    });
+};
