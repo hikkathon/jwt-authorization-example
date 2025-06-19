@@ -12,7 +12,7 @@ export const SMTP_CONFIG: SmtpConfig = {
     host: process.env.SMTP_HOST as string,
     port: parseInt(process.env.SMTP_PORT as string, 10),
     from: process.env.SMTP_FROM as string,
-    secure: false,
+    secure: false, // true для порта 465
     auth: {
         user: process.env.SMTP_USER as string,
         pass: process.env.SMTP_PASS as string,
