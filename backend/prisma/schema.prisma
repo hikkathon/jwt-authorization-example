@@ -25,11 +25,11 @@ model User {
   created_at    DateTime @default(now())
   updated_at    DateTime @default(now())
   last_login_at DateTime @default(now())
+  activate_link String   @unique @default(uuid()) @db.Uuid
 
   RefreshToken   RefreshToken[]
   AccessToken    AccessToken[]
   TokenBlacklist TokenBlacklist[]
-  ActivateLink   ActivateLink?
 
   @@map("users")
 }
@@ -70,14 +70,4 @@ model TokenBlacklist {
   user User @relation(fields: [user_id], references: [id])
 
   @@map("tokens_blacklist")
-}
-
-model ActivateLink {
-  id        Int    @id @default(autoincrement())
-  user_uuid String @unique @db.Uuid
-  uuid      String @unique @default(uuid()) @db.Uuid
-
-  user User @relation(fields: [user_uuid], references: [uuid])
-
-  @@map("activate_links")
 }

@@ -1,5 +1,6 @@
 import {User} from '../generated/prisma';
 import {prisma} from '../config/database';
+import ApiError from "../exceptions/api.error";
 
 export const createUser = async (email: string, password_hash: string): Promise<User> => {
     return prisma.user.create({
@@ -17,6 +18,10 @@ export const getUserById = async (id: number): Promise<User | null> => {
 
 export const getUserByUuId = async (uuid: string): Promise<User | null> => {
     return prisma.user.findUnique({where: {uuid}});
+};
+
+export const getUserByActivationLink = async (activate_link: string): Promise<User | null> => {
+    return prisma.user.findUnique({where: {activate_link}});
 };
 
 export const getUserByEmail = async (email: string): Promise<User | null> => {

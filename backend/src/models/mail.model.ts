@@ -1,4 +1,4 @@
-import {ActivateLink} from '../generated/prisma';
+/*import {ActivateLink} from '../generated/prisma';
 import {prisma} from '../config/database';
 
 export const createLink = async (user_uuid: string): Promise<ActivateLink> => {
@@ -13,4 +13,4 @@ export const getLink = async (uuid: string): Promise<ActivateLink | null> => {
 
 export const deleteLink = async (user_uuid: string): Promise<ActivateLink> => {
     return prisma.activateLink.delete({where: {user_uuid}});
-};
+};*/

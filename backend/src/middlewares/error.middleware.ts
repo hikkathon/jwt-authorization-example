@@ -8,7 +8,7 @@ export default function errorMiddleware(
     next: NextFunction
 ): void {
     if (err instanceof ApiError) {
-        res.status(err.status).json({message: err.message});
+        res.status(err.status).json({message: err.message, errors: err.errors});
         return;
     }
     console.error(err);

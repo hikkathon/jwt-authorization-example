@@ -11,15 +11,10 @@ type UserPublicInfo = Pick<User, 'uuid' | 'email' | 'is_active'>;
 export const register = async (email: string, password: string) => {
     const candidate = await userModel.getUserByEmail(email);
     if (candidate) {
-        throw new ApiError(400, 'A user with this email already exists');
-    }
-    if (password.length < 8) {
-        throw new ApiError(400, 'Password must be at least 8 characters long');
+        throw ApiError.BadRequest('A user with this email already exists');
     }
     const passwordHash = await bcrypt.hash(password, 3);
     const user: User = await userModel.createUser(email, passwordHash);
-
-    const activationLink = await mailService.createMailLink(user.uuid)
 
     await mailService.sendActivationMail(
         email,
@@ -27,7 +22,7 @@ export const register = async (email: string, password: string) => {
         ' ',
         `<div>
              <h1>Для активации перейдите по ссылке</h1>
-             <a href="${API_URL}/api/v1/auth/activate/${activationLink.uuid}">Активировать</a>
+             <a href="${API_URL}/api/v1/auth/activate/${user.activate_link}">Активировать</a>
          </div>`
     );
 
@@ -53,20 +48,14 @@ export const logout = async (id: number) => {
 };
 
 export const activate = async (activationLink: string) => {
-    const link = await mailService.getMailLink(activationLink);
-
-    if (!link) {
-        throw new ApiError(400, 'Invalid activation link');
-    }
-
-    const user = await userModel.getUserByUuId(link.user_uuid);
+    const user = await userModel.getUserByActivationLink(activationLink);
 
     if (!user) {
-        throw new ApiError(400, 'User not found');
+        throw ApiError.BadRequest('User not found');
     }
 
     if (user.is_active) {
-        throw new ApiError(400, 'User is already activated');
+        throw ApiError.BadRequest('User is already activated');
     }
 
     user.is_active = true;

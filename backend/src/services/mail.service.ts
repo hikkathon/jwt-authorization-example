@@ -1,4 +1,4 @@
-import * as mailModel from '../models/mail.model'
+//import * as mailModel from '../models/mail.model'
 import nodemailer from 'nodemailer';
 import {SMTP_CONFIG} from '../config/env'
 import ApiError from '../exceptions/api.error';
@@ -29,14 +29,14 @@ export const sendActivationMail = async (to: string, subject: string, text: stri
     }
 }
 
-export const getMailLink = async (uuid: string) => {
+/*export const getMailLink = async (uuid: string) => {
     return await mailModel.getLink(uuid)
 }
 
-export const createMailLink = async (uuid_user: string) => {
-    return await mailModel.createLink(uuid_user)
+export const createMailLink = async (uuid: string) => {
+    return await mailModel.createLink(uuid)
 }
 
-export const deleteMailLink = async (uuid_user: string) => {
-    return await mailModel.deleteLink(uuid_user)
-}
+export const deleteMailLink = async (uuid: string) => {
+    return await mailModel.deleteLink(uuid)
+}*/
