@@ -1,10 +1,8 @@
 //import * as mailModel from '../models/mail.model'
-import nodemailer from 'nodemailer';
+import nodemailer, {TransportOptions} from 'nodemailer';
 import {SMTP_CONFIG} from '../config/env'
-import ApiError from '../exceptions/api.error';
 
-// @ts-ignore
-const transporter = nodemailer.createTransport(SMTP_CONFIG);
+const transporter = nodemailer.createTransport(SMTP_CONFIG as TransportOptions);
 
 /**
  * Отправляет email через TimeWeb SMTP
@@ -25,7 +23,7 @@ export const sendActivationMail = async (to: string, subject: string, text: stri
 
         console.log("Письмо отправлено:", info.messageId);
     } catch (error) {
-        throw new ApiError(502, "Failed to send activation email. Please try again later.");
+        throw new Error("Failed to send activation email. Please try again later.");
     }
 }
 

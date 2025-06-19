@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser'
-import errorMiddleware from './middlewares/error.middleware';
 import apiRoutes from "./routes/index";
 import {ApiResponseBuilder} from "./utils/apiResponse";
 import {errorHandler} from "./middlewares/error.handler";
@@ -26,8 +25,5 @@ app.use((req, res) => {
 });
 
 app.use(errorHandler);
-
-// Error handling middleware
-// app.use(errorMiddleware);
 
 export default app;

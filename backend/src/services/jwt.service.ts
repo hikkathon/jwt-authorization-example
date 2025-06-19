@@ -1,11 +1,9 @@
 import jwt from 'jsonwebtoken';
-import ApiError from '../exceptions/api.error';
 import { JWT_ACCESS_TOKEN_SECRET, JWT_REFRESH_TOKEN_SECRET } from '../config/env';
 import * as jwtModel from "../models/jwt.model";
 
-// Проверка конфигурации при загрузке модуля
 if (!JWT_ACCESS_TOKEN_SECRET || !JWT_REFRESH_TOKEN_SECRET) {
-    throw new ApiError(500, 'JWT secrets are not configured');
+    throw new Error('JWT secrets are not configured');
 }
 
 export const generateTokens = (payload: string | Buffer | object) => {
