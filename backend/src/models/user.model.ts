@@ -1,6 +1,5 @@
 import {User} from '../generated/prisma';
 import {prisma} from '../config/database';
-import ApiError from "../exceptions/api.error";
 
 export const createUser = async (email: string, password_hash: string): Promise<User> => {
     return prisma.user.create({

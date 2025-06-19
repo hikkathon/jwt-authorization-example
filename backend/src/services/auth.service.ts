@@ -2,7 +2,6 @@ import * as userModel from '../models/user.model';
 import * as mailService from './mail.service'
 import * as jwtService from "./jwt.service";
 import bcrypt from 'bcrypt';
-import ApiError from '../exceptions/api.error';
 import {User} from "../generated/prisma";
 import {API_URL} from '../config/env'
 
@@ -11,7 +10,7 @@ type UserPublicInfo = Pick<User, 'uuid' | 'email' | 'is_active'>;
 export const register = async (email: string, password: string) => {
     const candidate = await userModel.getUserByEmail(email);
     if (candidate) {
-        throw ApiError.BadRequest('A user with this email already exists');
+        throw new Error('A user with this email already exists');
     }
     const passwordHash = await bcrypt.hash(password, 3);
     const user: User = await userModel.createUser(email, passwordHash);
@@ -51,11 +50,11 @@ export const activate = async (activationLink: string) => {
     const user = await userModel.getUserByActivationLink(activationLink);
 
     if (!user) {
-        throw ApiError.BadRequest('User not found');
+        throw new Error ('User not found');
     }
 
     if (user.is_active) {
-        throw ApiError.BadRequest('User is already activated');
+        throw  new Error('User is already activated');
     }
 
     user.is_active = true;
