@@ -1,9 +1,9 @@
-import express from 'express';
+import express, {NextFunction, Request, Response} from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser'
 import apiRoutes from "./routes/index";
-import {ApiResponseBuilder} from "./utils/apiResponse";
 import {errorHandler} from "./middlewares/error.handler";
+import {NotFoundError} from "./exceptions/NotFoundError";
 
 const app = express();
 
@@ -15,13 +15,8 @@ app.use(cookieParser());
 app.use('/api', apiRoutes);
 
 // Обработка 404
-app.use((req, res) => {
-    ApiResponseBuilder.error(
-        res,
-        'NOT_FOUND',
-        'Resource not found',
-        404
-    );
+app.use((req: Request, res: Response, next: NextFunction) => {
+    next(NotFoundError);
 });
 
 app.use(errorHandler);

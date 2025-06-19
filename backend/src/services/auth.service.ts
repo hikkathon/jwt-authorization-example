@@ -4,6 +4,7 @@ import * as jwtService from "./jwt.service";
 import bcrypt from 'bcrypt';
 import {User} from "../generated/prisma";
 import {API_URL} from '../config/env'
+import {NotFoundError} from "../exceptions/NotFoundError";
 
 type UserPublicInfo = Pick<User, 'uuid' | 'email' | 'is_active'>;
 
@@ -50,11 +51,11 @@ export const activate = async (activationLink: string) => {
     const user = await userModel.getUserByActivationLink(activationLink);
 
     if (!user) {
-        throw new Error ('User not found');
+        throw new NotFoundError('User not found');
     }
 
     if (user.is_active) {
-        throw  new Error('User is already activated');
+        throw new Error('User is already activated');
     }
 
     user.is_active = true;
