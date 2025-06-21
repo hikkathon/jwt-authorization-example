@@ -1,9 +1,9 @@
-import {RefreshToken, AccessToken} from '../generated/prisma';
-import {prisma} from '../config/database';
+import { RefreshToken, AccessToken } from '../generated/prisma';
+import { prisma } from '../config/database';
 import { v4 as uuidv4 } from 'uuid';
 
-export const createAccessTokenForUser = async (userId: number, token: string, expiresAt: Date) : Promise<AccessToken> => {
-    return  prisma.accessToken.create({
+export const createAccessTokenForUser = async (userId: number, token: string, expiresAt: Date): Promise<AccessToken> => {
+    return prisma.accessToken.create({
         data: {
             user_id: userId,
             token: token,
@@ -13,7 +13,7 @@ export const createAccessTokenForUser = async (userId: number, token: string, ex
     });
 };
 
-export const createRefreshTokenForUser = async (userId: number, token: string, expiresAt: Date) : Promise<RefreshToken> => {
+export const createRefreshTokenForUser = async (userId: number, token: string, expiresAt: Date): Promise<RefreshToken> => {
     return prisma.refreshToken.create({
         data: {
             user_id: userId,
@@ -23,3 +23,19 @@ export const createRefreshTokenForUser = async (userId: number, token: string, e
         }
     });
 };
+
+export const findRefreshToken = async (refreshToken: string): Promise<RefreshToken | null> => {
+    return prisma.refreshToken.findUnique({
+        where: {
+            token: refreshToken,
+        }
+    })
+}
+
+export const removeToken = async (token: string): Promise<RefreshToken | null> => {
+    return prisma.refreshToken.delete({
+        where: {
+            token: token,
+        },
+    });
+}

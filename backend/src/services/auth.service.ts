@@ -2,9 +2,10 @@ import * as userModel from '../models/user.model';
 import * as mailService from './mail.service'
 import * as jwtService from "./jwt.service";
 import bcrypt from 'bcrypt';
-import {User} from "../generated/prisma";
-import {API_URL} from '../config/env'
-import {NotFoundError} from "../exceptions/NotFoundError";
+import { User } from "../generated/prisma";
+import { API_URL } from '../config/env'
+import { NotFoundError } from "../exceptions/NotFoundError";
+import { JwtPayload } from "../interfaces/JwtPayload";
 
 type UserPublicInfo = Pick<User, 'uuid' | 'email' | 'is_active'>;
 
@@ -39,12 +40,30 @@ export const register = async (email: string, password: string) => {
     return {...publicUserInfo, tokens}
 };
 
-export const login = async () => {
+export const login = async (email: string, password: string) => {
+    const user = await userModel.getUserByEmail(email);
+    if(!user) {
+        throw new NotFoundError("User not found");
+    }
+    const isPasswordPassed = await bcrypt.compare(password, user.password_hash);
+    if(!isPasswordPassed) {
+        throw new NotFoundError("Incorrect password or email entered");
+    }
+    const publicUserInfo: UserPublicInfo = {
+        uuid: user.uuid,
+        email: user.email,
+        is_active: user.is_active
+    };
+    const tokens = jwtService.generateTokens({...publicUserInfo});
 
+    await jwtService.createAccessToken(user.id, tokens.accessToken)
+    await jwtService.createRefreshToken(user.id, tokens.refreshToken)
+
+    return {...publicUserInfo, tokens}
 };
 
-export const logout = async (id: number) => {
-
+export const logout = async (refreshToken: string) => {
+    return await jwtService.removeToken(refreshToken);
 };
 
 export const activate = async (activationLink: string) => {
@@ -63,8 +82,30 @@ export const activate = async (activationLink: string) => {
     await userModel.updateUser(user.id, user);
 };
 
-export const refreshToken = async (id: number, username: string) => {
+export const refreshToken = async (refreshToken: string) => {
+    if(!refreshToken) {
+        throw new Error('Unauthorized error');
+    }
+    const userData = jwtService.validateRefreshToken(refreshToken) as JwtPayload;
+    const refreshTokenFromDb = await jwtService.findRefreshToken(refreshToken);
+    if(!userData || !refreshTokenFromDb) {
+        throw new Error('Unauthorized error');
+    }
+    const user = await userModel.getUserByUuId(userData.uuid);
+    if(!user) {
+        throw new NotFoundError("User not found");
+    }
+    const publicUserInfo: UserPublicInfo = {
+        uuid: userData.uuid,
+        email: userData.email,
+        is_active: userData.is_active
+    };
+    const tokens = jwtService.generateTokens({...publicUserInfo});
 
+    await jwtService.createAccessToken(user.id, tokens.accessToken)
+    await jwtService.createRefreshToken(user.id, tokens.refreshToken)
+
+    return {...publicUserInfo, tokens}
 };
 
 export const setAuthCookies = (res: { cookie: Function }, refreshToken: string) => {
