@@ -11,42 +11,42 @@ export const authProtected = (
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader) {
-            next(ApiResponseBuilder.error(
+            ApiResponseBuilder.error(
                 res,
                 'UNAUTHORIZED',
                 'Authentication failed',
                 401
-            ));
+            );
         }
 
         const token = authHeader?.split(' ')[1];
         if (!token) {
-            next(ApiResponseBuilder.error(
+            ApiResponseBuilder.error(
                 res,
                 'UNAUTHORIZED',
                 'Authentication failed',
                 401
-            ));
+            );
         }
         // @ts-ignore
         const userData = jwtService.validateAccessToken(token) as JwtPayload;
         if (!userData) {
-            next(ApiResponseBuilder.error(
+            ApiResponseBuilder.error(
                 res,
                 'UNAUTHORIZED',
                 'Authentication failed',
                 401
-            ));
+            );
         }
 
         (req as any).user = userData;
         next();
     } catch (error) {
-        next(ApiResponseBuilder.error(
+        ApiResponseBuilder.error(
             res,
             'UNAUTHORIZED',
             'Authentication failed',
             401
-        ));
+        );
     }
 };
