@@ -8,8 +8,8 @@ if (!JWT_ACCESS_TOKEN_SECRET || !JWT_REFRESH_TOKEN_SECRET) {
 }
 
 export const generateTokens = (payload: string | Buffer | object) => {
-    const accessToken = jwt.sign(payload, JWT_ACCESS_TOKEN_SECRET!, {expiresIn: '30m'});
-    const refreshToken = jwt.sign(payload, JWT_REFRESH_TOKEN_SECRET!, {expiresIn: '30d'});
+    const accessToken = jwt.sign(payload, JWT_ACCESS_TOKEN_SECRET!, {expiresIn: '30s'});
+    const refreshToken = jwt.sign(payload, JWT_REFRESH_TOKEN_SECRET!, {expiresIn: '1m'});
     return {accessToken, refreshToken};
 }
 
@@ -41,10 +41,10 @@ export const validateRefreshToken = (refreshToken: string): JwtPayload => {
     }
 }
 
-export const validateAccessToken = (accessToken: string) => {
+export const validateAccessToken = (accessToken: string): JwtPayload => {
     try {
-        return jwt.verify(accessToken, JWT_REFRESH_TOKEN_SECRET!);
+        return jwt.verify(accessToken, JWT_ACCESS_TOKEN_SECRET!) as JwtPayload;
     } catch (error) {
-        return null
+        throw new Error("Unable to verify access token");
     }
 }
