@@ -1,117 +1,126 @@
-import * as userModel from '../models/user.model';
-import * as mailService from './mail.service'
-import * as jwtService from "./jwt.service";
 import bcrypt from 'bcrypt';
-import { User } from "../generated/prisma";
-import { API_URL } from '../config/env'
-import { NotFoundError } from "../exceptions/NotFoundError";
-import { JwtPayload } from "../interfaces/JwtPayload";
+import { API_URL } from '../config/env';
+import { NotFoundError } from '../exceptions/NotFoundError';
+import { User } from '../generated/prisma';
+import { JwtPayload } from '../interfaces/JwtPayload';
+import { JWTRepository } from '../repositories/jwt.repository';
+import { UserRepository } from '../repositories/user.repository';
+import { JWTService } from './jwt.service';
+import * as mailService from './mail.service';
+import { UserService } from './user.service';
 
 type UserPublicInfo = Pick<User, 'uuid' | 'email' | 'is_active'>;
 
-export const register = async (email: string, password: string) => {
-    const candidate = await userModel.getUserByEmail(email);
-    if (candidate) {
-        throw new Error('A user with this email already exists');
-    }
-    const passwordHash = await bcrypt.hash(password, 3);
-    const user: User = await userModel.createUser(email, passwordHash);
+const userService = new UserService(new UserRepository());
+const jwtService = new JWTService(new JWTRepository());
 
-    await mailService.sendActivationMail(
-        email,
-        'Активация аккаунта',
-        ' ',
-        `<div>
-             <h1>Для активации перейдите по ссылке</h1>
-             <a href="${API_URL}/api/v1/auth/activate/${user.activate_link}">Активировать</a>
-         </div>`
-    );
+export class AuthService {
+	async register(email: string, password: string) {
+		const candidate = await userService.getByEmail(email);
+		if (candidate) {
+			throw new Error('A user with this email already exists');
+		}
+		const passwordHash = await bcrypt.hash(password, 3);
+		const user: User = await userService.create(email, passwordHash);
 
-    const publicUserInfo: UserPublicInfo = {
-        uuid: user.uuid,
-        email: user.email,
-        is_active: user.is_active
-    };
-    const tokens = jwtService.generateTokens({...publicUserInfo});
+		await mailService.sendActivationMail(
+			email,
+			'Активация аккаунта',
+			' ',
+			`<div>
+					<h1>Для активации перейдите по ссылке</h1>
+					<a href="${API_URL}/api/v1/auth/activate/${user.activate_link}">Активировать</a>
+				</div>`
+		);
 
-    await jwtService.createAccessToken(user.id, tokens.accessToken)
-    await jwtService.createRefreshToken(user.id, tokens.refreshToken)
+		const publicUserInfo: UserPublicInfo = {
+			uuid: user.uuid,
+			email: user.email,
+			is_active: user.is_active,
+		};
+		const tokens = jwtService.generateTokens({ ...publicUserInfo });
 
-    return {...publicUserInfo, tokens}
-};
+		await jwtService.createAccessToken(user.id, tokens.accessToken);
+		await jwtService.createRefreshToken(user.id, tokens.refreshToken);
 
-export const login = async (email: string, password: string) => {
-    const user = await userModel.getUserByEmail(email);
-    if(!user) {
-        throw new NotFoundError("User not found");
-    }
-    const isPasswordPassed = await bcrypt.compare(password, user.password_hash);
-    if(!isPasswordPassed) {
-        throw new NotFoundError("Incorrect password or email entered");
-    }
-    const publicUserInfo: UserPublicInfo = {
-        uuid: user.uuid,
-        email: user.email,
-        is_active: user.is_active
-    };
-    const tokens = jwtService.generateTokens({...publicUserInfo});
+		return { ...publicUserInfo, tokens };
+	}
 
-    await jwtService.createAccessToken(user.id, tokens.accessToken)
-    await jwtService.createRefreshToken(user.id, tokens.refreshToken)
+	async login(email: string, password: string) {
+		const user = await userService.getByEmail(email);
+		if (!user) {
+			throw new NotFoundError('User not found');
+		}
+		const isPasswordPassed = await bcrypt.compare(password, user.password_hash);
+		if (!isPasswordPassed) {
+			throw new NotFoundError('Incorrect password or email entered');
+		}
+		const publicUserInfo: UserPublicInfo = {
+			uuid: user.uuid,
+			email: user.email,
+			is_active: user.is_active,
+		};
+		const tokens = jwtService.generateTokens({ ...publicUserInfo });
 
-    return {...publicUserInfo, tokens}
-};
+		await jwtService.createAccessToken(user.id, tokens.accessToken);
+		await jwtService.createRefreshToken(user.id, tokens.refreshToken);
 
-export const logout = async (refreshToken: string) => {
-    return await jwtService.removeToken(refreshToken);
-};
+		return { ...publicUserInfo, tokens };
+	}
 
-export const activate = async (activationLink: string) => {
-    const user = await userModel.getUserByActivationLink(activationLink);
+	async logout(refreshToken: string) {
+		return await jwtService.removeToken(refreshToken);
+	}
 
-    if (!user) {
-        throw new NotFoundError('User not found');
-    }
+	async activate(activationLink: string) {
+		const user = await userService.getByActivationLink(activationLink);
 
-    if (user.is_active) {
-        throw new Error('User is already activated');
-    }
+		if (!user) {
+			throw new NotFoundError('User not found');
+		}
 
-    user.is_active = true;
-    user.updated_at = new Date();
-    await userModel.updateUser(user.id, user);
-};
+		if (user.is_active) {
+			throw new Error('User is already activated');
+		}
 
-export const refreshToken = async (refreshToken: string) => {
-    if(!refreshToken) {
-        throw new Error('Unauthorized error');
-    }
-    const userData = jwtService.validateRefreshToken(refreshToken) as JwtPayload;
-    const refreshTokenFromDb = await jwtService.findRefreshToken(refreshToken);
-    if(!userData || !refreshTokenFromDb) {
-        throw new Error('Unauthorized error');
-    }
-    const user = await userModel.getUserByUuId(userData.uuid);
-    if(!user) {
-        throw new NotFoundError("User not found");
-    }
-    const publicUserInfo: UserPublicInfo = {
-        uuid: userData.uuid,
-        email: userData.email,
-        is_active: userData.is_active
-    };
-    const tokens = jwtService.generateTokens({...publicUserInfo});
+		user.is_active = true;
+		user.updated_at = new Date();
+		await userService.update(user.id, user);
+	}
 
-    await jwtService.createAccessToken(user.id, tokens.accessToken)
-    await jwtService.createRefreshToken(user.id, tokens.refreshToken)
+	async refreshToken(refreshToken: string) {
+		if (!refreshToken) {
+			throw new Error('Unauthorized error');
+		}
+		const userData = jwtService.validateRefreshToken(
+			refreshToken
+		) as JwtPayload;
+		const refreshTokenFromDb = await jwtService.findRefreshToken(refreshToken);
+		if (!userData || !refreshTokenFromDb) {
+			throw new Error('Unauthorized error');
+		}
+		const user = await userService.getByUuId(userData.uuid);
+		if (!user) {
+			throw new NotFoundError('User not found');
+		}
+		const publicUserInfo: UserPublicInfo = {
+			uuid: userData.uuid,
+			email: userData.email,
+			is_active: userData.is_active,
+		};
+		const tokens = jwtService.generateTokens({ ...publicUserInfo });
 
-    return {...publicUserInfo, tokens}
-};
+		await jwtService.createAccessToken(user.id, tokens.accessToken);
+		await jwtService.createRefreshToken(user.id, tokens.refreshToken);
 
-export const setAuthCookies = (res: { cookie: Function }, refreshToken: string) => {
-    res.cookie('refreshToken', refreshToken, {
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
-        secure: true
-    });
-};
+		return { ...publicUserInfo, tokens };
+	}
+
+	setAuthCookies = (res: { cookie: Function }, refreshToken: string) => {
+		res.cookie('refreshToken', refreshToken, {
+			maxAge: 30 * 24 * 60 * 60 * 1000,
+			httpOnly: true,
+			secure: true,
+		});
+	};
+}

@@ -1,6 +1,6 @@
-import { UserTokenData } from "./UserTokenData";
+import { UserTokenData } from './UserTokenData';
 
 export interface JwtPayload extends UserTokenData {
-    iat?: number;
-    exp?: number;
+	iat?: number;
+	exp?: number;
 }
