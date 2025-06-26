@@ -34,6 +34,17 @@ export const login = async (
 	next: NextFunction
 ) => {
 	try {
+		const cookies = req.cookies.headers;
+		if(!cookies){
+			ApiResponseBuilder.error(
+				res,
+				'USER_LOGIN_FAILED',
+				'Already logged in',
+				400,
+			);
+
+			return;
+		}
 		const { email, password } = req.body;
 		const userData = await authService.login(email, password);
 		authService.setAuthCookies(res, userData.tokens.refreshToken);
