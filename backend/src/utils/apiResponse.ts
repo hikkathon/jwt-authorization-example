@@ -6,10 +6,12 @@ export class ApiResponseBuilder {
 		res: Response,
 		data: T,
 		statusCode: number = 200,
+		message?: string,
 		meta?: any
 	): Response<ApiResponse<T>> {
 		const response: ApiResponse<T> = {
 			success: true,
+			message,
 			data,
 		};
 

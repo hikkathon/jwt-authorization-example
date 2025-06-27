@@ -12,19 +12,15 @@ export class UserService {
 		return this.userRepo.getUserByEmail(email);
 	}
 
+	async getActivationLink(link: string) {
+		return this.userRepo.getUserActivationLink(link);
+	}
+
 	async create(email: string, passwordHash: string) {
 		return this.userRepo.createUser(email, passwordHash);
 	}
 
-	async getByActivationLink(activationLink: string) {
-		return this.userRepo.getUserByActivationLink(activationLink);
-	}
-
 	async update(userId: number, user: User) {
 		return this.userRepo.updateUser(userId, user);
-	}
-
-	async getByUuId(userId: string) {
-		return this.userRepo.getUserByUuId(userId);
 	}
 }

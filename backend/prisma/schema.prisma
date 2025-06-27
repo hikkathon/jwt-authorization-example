@@ -16,58 +16,27 @@ datasource db {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
-  uuid          String   @unique @default(uuid()) @db.Uuid
-  username      String?  @unique @db.VarChar(255)
-  password_hash String   @db.VarChar(255)
-  email         String   @unique @db.VarChar(255)
-  is_active     Boolean  @default(false)
-  created_at    DateTime @default(now())
-  updated_at    DateTime @default(now())
-  last_login_at DateTime @default(now())
-  activate_link String   @unique @default(uuid()) @db.Uuid
-
-  RefreshToken   RefreshToken[]
-  AccessToken    AccessToken[]
-  TokenBlacklist TokenBlacklist[]
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  password     String
+  username     String?       @unique @db.VarChar(255)
+  isActivate   Boolean       @default(false)
+  activateLink String        @unique @default(uuid()) @db.Uuid
+  refreshToken RefreshToken?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@map("users")
 }
 
 model RefreshToken {
-  id         Int      @id @default(autoincrement())
-  user_id    Int
-  token      String   @unique @db.VarChar(512)
-  jti        String   @unique @default(uuid()) @db.Uuid
-  expires_at DateTime
-  created_at DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 
-  user User @relation(fields: [user_id], references: [id])
-
-  @@map("refresh_tokens")
-}
-
-model AccessToken {
-  id         Int      @id @default(autoincrement())
-  user_id    Int
-  token      String   @db.VarChar(512)
-  jti        String   @unique @default(uuid()) @db.Uuid
-  expires_at DateTime
-  created_at DateTime @default(now())
-
-  user User @relation(fields: [user_id], references: [id])
-
-  @@map("access_tokens")
-}
-
-model TokenBlacklist {
-  id             Int      @id @default(autoincrement())
-  user_id        Int
-  jti            String   @unique @db.Uuid
-  reason         String?
-  blacklisted_at DateTime @default(now())
-
-  user User @relation(fields: [user_id], references: [id])
-
-  @@map("tokens_blacklist")
+  @@index([userId])
+  @@map("tokens")
 }

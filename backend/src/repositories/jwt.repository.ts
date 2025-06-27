@@ -1,23 +1,7 @@
-import { v4 as uuidv4 } from 'uuid';
 import { prisma } from '../config/database';
-import { AccessToken, RefreshToken } from '../generated/prisma';
+import { RefreshToken } from '../generated/prisma';
 
 export class JWTRepository {
-    async createAccessToken(
-        userId: number,
-        token: string,
-        expiresAt: Date
-    ): Promise<AccessToken> {
-        return prisma.accessToken.create({
-            data: {
-                user_id: userId,
-                token: token,
-                expires_at: expiresAt,
-                jti: uuidv4(),
-            },
-        });
-    }
-
     async createRefreshToken(
         userId: number,
         token: string,
@@ -25,10 +9,9 @@ export class JWTRepository {
     ): Promise<RefreshToken> {
         return prisma.refreshToken.create({
             data: {
-                user_id: userId,
+                userId: userId,
                 token: token,
-                expires_at: expiresAt,
-                jti: uuidv4(),
+                expiresAt: expiresAt,
             },
         });
     }

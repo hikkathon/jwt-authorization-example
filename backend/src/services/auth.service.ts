@@ -8,8 +8,7 @@ import { UserRepository } from '../repositories/user.repository';
 import { JWTService } from './jwt.service';
 import * as mailService from './mail.service';
 import { UserService } from './user.service';
-
-type UserPublicInfo = Pick<User, 'uuid' | 'email' | 'is_active'>;
+import { UserJWTPayload } from "../types/user.jwtPayload.type";
 
 const userService = new UserService(new UserRepository());
 const jwtService = new JWTService(new JWTRepository());
@@ -29,21 +28,20 @@ export class AuthService {
 			' ',
 			`<div>
 					<h1>Для активации перейдите по ссылке</h1>
-					<a href="${API_URL}/api/v1/auth/activate/${user.activate_link}">Активировать</a>
+					<a href="${API_URL}/api/v1/auth/activate/${user.activateLink}">Активировать</a>
 				</div>`
 		);
 
-		const publicUserInfo: UserPublicInfo = {
-			uuid: user.uuid,
+		const userJWTPayload: UserJWTPayload = {
+			id: user.id,
 			email: user.email,
-			is_active: user.is_active,
+			isActivate: user.isActivate,
 		};
-		const tokens = jwtService.generateTokens({ ...publicUserInfo });
+		const tokens = jwtService.generateTokens({ ...userJWTPayload });
 
-		await jwtService.createAccessToken(user.id, tokens.accessToken);
 		await jwtService.createRefreshToken(user.id, tokens.refreshToken);
 
-		return { ...publicUserInfo, tokens };
+		return { ...userJWTPayload, tokens };
 	}
 
 	async login(email: string, password: string) {
@@ -51,40 +49,39 @@ export class AuthService {
 		if (!user) {
 			throw new NotFoundError('User not found');
 		}
-		const isPasswordPassed = await bcrypt.compare(password, user.password_hash);
+		const isPasswordPassed = await bcrypt.compare(password, user.password);
 		if (!isPasswordPassed) {
 			throw new NotFoundError('Incorrect password or email entered');
 		}
-		const publicUserInfo: UserPublicInfo = {
-			uuid: user.uuid,
+		const userJWTPayload: UserJWTPayload = {
+			id: user.id,
 			email: user.email,
-			is_active: user.is_active,
+			isActivate: user.isActivate,
 		};
-		const tokens = jwtService.generateTokens({ ...publicUserInfo });
+		const tokens = jwtService.generateTokens({ ...userJWTPayload });
 
-		await jwtService.createAccessToken(user.id, tokens.accessToken);
 		await jwtService.createRefreshToken(user.id, tokens.refreshToken);
 
-		return { ...publicUserInfo, tokens };
+		return { ...userJWTPayload, tokens };
 	}
 
 	async logout(refreshToken: string) {
 		return await jwtService.removeToken(refreshToken);
 	}
 
-	async activate(activationLink: string) {
-		const user = await userService.getByActivationLink(activationLink);
+	async activate(activateLink: string) {
+		const user = await userService.getActivationLink(activateLink);
 
 		if (!user) {
 			throw new NotFoundError('User not found');
 		}
 
-		if (user.is_active) {
+		if (user.isActivate) {
 			throw new Error('User is already activated');
 		}
 
-		user.is_active = true;
-		user.updated_at = new Date();
+		user.isActivate = true;
+		user.updatedAt = new Date();
 		await userService.update(user.id, user);
 	}
 
@@ -99,24 +96,23 @@ export class AuthService {
 		if (!userData || !refreshTokenFromDb) {
 			throw new Error('Unauthorized error');
 		}
-		const user = await userService.getByUuId(userData.uuid);
+		const user = await userService.getByEmail(userData.email);
 		if (!user) {
 			throw new NotFoundError('User not found');
 		}
-		const publicUserInfo: UserPublicInfo = {
-			uuid: userData.uuid,
-			email: userData.email,
-			is_active: userData.is_active,
+		const userJWTPayload: UserJWTPayload = {
+			id: user.id,
+			email: user.email,
+			isActivate: user.isActivate,
 		};
-		const tokens = jwtService.generateTokens({ ...publicUserInfo });
+		const tokens = jwtService.generateTokens({ ...userJWTPayload });
 
-		await jwtService.createAccessToken(user.id, tokens.accessToken);
 		await jwtService.createRefreshToken(user.id, tokens.refreshToken);
 
-		return { ...publicUserInfo, tokens };
+		return { ...userJWTPayload, tokens };
 	}
 
-	setAuthCookies = (res: { cookie: Function }, refreshToken: string) => {
+	setAuthCookies (res: { cookie: Function }, refreshToken: string) {
 		res.cookie('refreshToken', refreshToken, {
 			maxAge: 30 * 24 * 60 * 60 * 1000,
 			httpOnly: true,

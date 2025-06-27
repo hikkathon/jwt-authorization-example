@@ -1,7 +1,7 @@
 import { body, param, ValidationChain } from 'express-validator';
 
 export const authValidator = {
-	registration: (): ValidationChain[] => [
+	auth: (): ValidationChain[] => [
 		body('email').isEmail().withMessage('Invalid email'),
 		body('password')
 			.isString()

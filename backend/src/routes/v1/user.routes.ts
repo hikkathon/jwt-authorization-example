@@ -4,10 +4,6 @@ import * as authMiddlewares from '../../middlewares/auth.middlewares';
 
 const router = Router();
 
-router.get(
-	'/',
-	authMiddlewares.authProtected,
-	userController.getUsers
-);
+router.get('/', authMiddlewares.authProtected, userController.getUsers);
 
 export default router;

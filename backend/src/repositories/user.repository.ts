@@ -6,9 +6,9 @@ export class UserRepository {
 		return prisma.user.findMany();
 	}
 
-	async createUser(email: string, password_hash: string): Promise<User> {
+	async createUser(email: string, password: string): Promise<User> {
 		return prisma.user.create({
-			data: { email, password_hash },
+			data: { email, password },
 		});
 	}
 
@@ -16,16 +16,12 @@ export class UserRepository {
 		return prisma.user.findUnique({ where: { id } });
 	}
 
-	async getUserByUuId(uuid: string): Promise<User | null> {
-		return prisma.user.findUnique({ where: { uuid } });
-	}
-
-	async getUserByActivationLink(activate_link: string): Promise<User | null> {
-		return prisma.user.findUnique({ where: { activate_link } });
-	}
-
 	async getUserByEmail(email: string): Promise<User | null> {
 		return prisma.user.findUnique({ where: { email } });
+	}
+
+	async getUserActivationLink(link: string): Promise<User | null> {
+		return prisma.user.findUnique({ where: { activateLink: link } });
 	}
 
 	async updateUser(id: number, data: User): Promise<User> {

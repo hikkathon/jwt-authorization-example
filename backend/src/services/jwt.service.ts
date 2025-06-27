@@ -19,12 +19,6 @@ export class JWTService {
 		return { accessToken, refreshToken };
 	}
 
-	async createAccessToken(user_id: number, token: string) {
-		const expiration = new Date();
-		expiration.setMinutes(expiration.getMinutes() + 30);
-		return this.jwtRepo.createAccessToken(user_id, token, expiration);
-	}
-
 	async createRefreshToken(user_id: number, token: string) {
 		const expiration = new Date();
 		expiration.setDate(expiration.getDate() + 30);

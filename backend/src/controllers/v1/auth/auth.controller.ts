@@ -34,21 +34,10 @@ export const login = async (
 	next: NextFunction
 ) => {
 	try {
-		const cookies = req.cookies.headers;
-		if(!cookies){
-			ApiResponseBuilder.error(
-				res,
-				'USER_LOGIN_FAILED',
-				'Already logged in',
-				400,
-			);
-
-			return;
-		}
 		const { email, password } = req.body;
 		const userData = await authService.login(email, password);
 		authService.setAuthCookies(res, userData.tokens.refreshToken);
-		ApiResponseBuilder.success(res, 'Login successful', 200, { ...userData });
+		ApiResponseBuilder.success(res, { ...userData }, 200);
 	} catch (error) {
 		ApiResponseBuilder.error(
 			res,
@@ -85,7 +74,7 @@ export const activate = async (
 
 		await authService.activate(activateLink);
 
-		ApiResponseBuilder.success(res, 'Account activation was successful', 200, {
+		ApiResponseBuilder.success(res, {link: activateLink}, 200, 'Account activation was successful', {
 			link: activateLink,
 		});
 	} catch (error) {
