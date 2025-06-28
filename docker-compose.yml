@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   db:
     image: postgres:17-alpine
@@ -33,9 +35,9 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./backend/src:/app/src  # Монтируем код
+      - ./backend/src:/app/src
       - ./backend/prisma:/app/prisma
-      - /app/node_modules       # Исключаем перезапись node_modules
+      - /app/node_modules
     environment:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
@@ -47,13 +49,28 @@ services:
       - jwt_auth_network
     restart: unless-stopped
 
+  frontend:
+    build: ./frontend
+    image: frontend_jwt_auth
+    container_name: frontend_jwt_auth
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - jwt_auth_network
+    restart: unless-stopped
+
   mailer:
     image: mailhog/mailhog
     ports:
       - "8085:8025"
     networks:
       - jwt_auth_network
-
 
 volumes:
   postgres_data:
