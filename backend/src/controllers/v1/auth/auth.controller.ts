@@ -22,7 +22,7 @@ export const registration = async (
 			res,
 			'USER_REGISTRATION_FAILED',
 			'Failed to registration user',
-			400,
+			409,
 			getErrorMessage(error)
 		);
 	}

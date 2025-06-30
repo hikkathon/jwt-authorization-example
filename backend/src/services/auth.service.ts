@@ -1,6 +1,5 @@
 import bcrypt from 'bcrypt';
 import { API_URL } from '../config/env';
-import { NotFoundError } from '../exceptions/NotFoundError';
 import { User } from '../generated/prisma';
 import { JwtPayload } from '../interfaces/JwtPayload';
 import { JWTRepository } from '../repositories/jwt.repository';
@@ -47,11 +46,11 @@ export class AuthService {
 	async login(email: string, password: string) {
 		const user = await userService.getByEmail(email);
 		if (!user) {
-			throw new NotFoundError('User not found');
+			throw new Error('User not found');
 		}
 		const isPasswordPassed = await bcrypt.compare(password, user.password);
 		if (!isPasswordPassed) {
-			throw new NotFoundError('Incorrect password or email entered');
+			throw new Error('Incorrect password or email entered');
 		}
 		const userJWTPayload: UserJWTPayload = {
 			id: user.id,
@@ -73,7 +72,7 @@ export class AuthService {
 		const user = await userService.getActivationLink(activateLink);
 
 		if (!user) {
-			throw new NotFoundError('User not found');
+			throw new Error('User not found');
 		}
 
 		if (user.isActivate) {
@@ -98,7 +97,7 @@ export class AuthService {
 		}
 		const user = await userService.getByEmail(userData.email);
 		if (!user) {
-			throw new NotFoundError('User not found');
+			throw new Error('User not found');
 		}
 		const userJWTPayload: UserJWTPayload = {
 			id: user.id,

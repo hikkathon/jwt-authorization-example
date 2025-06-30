@@ -7,7 +7,7 @@ export const PORT = process.env.PORT || 3000;
 export const JWT_ACCESS_TOKEN_SECRET = process.env.JWT_ACCESS_TOKEN_SECRET;
 export const JWT_REFRESH_TOKEN_SECRET = process.env.JWT_REFRESH_TOKEN_SECRET;
 export const API_URL: string = process.env.API_URL || 'http://localhost:3000';
-export const APP_URL: string = process.env.APP_URL || 'http://localhost:5000';
+export const APP_URL: string = process.env.APP_URL || 'http://localhost:5173';
 export const SMTP_CONFIG: SmtpConfig = {
 	host: process.env.SMTP_HOST as string,
 	port: parseInt(process.env.SMTP_PORT as string, 10),
