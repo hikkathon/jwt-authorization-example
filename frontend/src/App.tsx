@@ -6,6 +6,7 @@ import { UserOutlined } from "@ant-design/icons";
 import MyTable from "./components/Table.tsx";
 import RegistrationForm from "./components/RegistrationForm.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { OpenRegisterModalButton } from "./components/OpenRegisterModalButton.tsx";
 
 const {Text} = Typography;
 const queryClient = new QueryClient();
@@ -23,7 +24,7 @@ function App() {
                         </Col>
                         <Col span={12} style={{display: "flex", justifyContent: "end"}}>
                             <Space>
-                                <Button type="primary">Registration</Button>
+                                <OpenRegisterModalButton/>
                                 <Button>Login</Button>
                             </Space>
                         </Col>

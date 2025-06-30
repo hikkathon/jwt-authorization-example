@@ -1,11 +1,13 @@
-import { Button, Form, Input, notification } from 'antd';
+import { Button, Form, Input, Modal, notification } from 'antd';
 import React from 'react';
 import { useAuth } from '../hooks/UseAuth.ts';
 import type { ApiResponse } from "../models/response/ApiResponse.ts";
+import { useModalStore } from '../store/useRegisterModalStore.ts';
 
 const RegistrationForm: React.FC = () => {
     const [form] = Form.useForm();
-    const {registerMutation} = useAuth();
+    const { registerMutation } = useAuth();
+    const { isRegistrationModalOpen, closeRegistrationModal } = useModalStore();
 
     const onFinish = (values: { email: string; password: string }) => {
         registerMutation.mutate(values, {
@@ -14,7 +16,8 @@ const RegistrationForm: React.FC = () => {
                     message: 'Registration successful!',
                     duration: 5,
                 });
-                //form.resetFields();
+                form.resetFields();
+                closeRegistrationModal(); // Закрываем модалку после успешной регистрации
             },
             onError: (error) => {
                 // @ts-ignore
@@ -34,47 +37,54 @@ const RegistrationForm: React.FC = () => {
     };
 
     return (
-        <Form
-            form={form}
-            name="registration"
-            labelCol={{span: 8}}
-            wrapperCol={{span: 16}}
-            initialValues={{remember: true}}
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
-            autoComplete="off"
+        <Modal
+            title="Registration"
+            open={isRegistrationModalOpen}
+            onCancel={closeRegistrationModal}
+            footer={null}
         >
-            <Form.Item
-                label="Email"
-                name="email"
-                rules={[
-                    {required: true, message: 'Please input your email!'},
-                    {required: true, type: 'email', message: 'Please enter a valid email!'}
-                ]}
+            <Form
+                form={form}
+                name="registration"
+                initialValues={{ remember: true }}
+                onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
+                autoComplete="off"
             >
-                <Input/>
-            </Form.Item>
-
-            <Form.Item
-                label="Password"
-                name="password"
-                rules={[
-                    {required: true, message: 'Please input your password!'},
-                    {min: 6, message: 'Password must be at least 6 characters!'}
-                ]}
-            >
-                <Input.Password/>
-            </Form.Item>
-
-            <Form.Item wrapperCol={{offset: 8, span: 16}}>
-                <Button
-                    type="primary"
-                    htmlType="submit"
+                <Form.Item
+                    label="Email"
+                    name="email"
+                    rules={[
+                        { required: true, message: 'Please input your email!' },
+                        { type: 'email', message: 'Please enter a valid email!' }
+                    ]}
                 >
-                    Register
-                </Button>
-            </Form.Item>
-        </Form>
+                    <Input />
+                </Form.Item>
+
+                <Form.Item
+                    label="Password"
+                    name="password"
+                    rules={[
+                        { required: true, message: 'Please input your password!' },
+                        { min: 6, message: 'Password must be at least 6 characters!' }
+                    ]}
+                >
+                    <Input.Password />
+                </Form.Item>
+
+                <Form.Item style={{display: 'flex', margin: 0}}>
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={registerMutation.isPending}
+                        style={{ margin: 0, width: '100%' }}
+                    >
+                        Register
+                    </Button>
+                </Form.Item>
+            </Form>
+        </Modal>
     );
 };
 
