@@ -1,13 +1,13 @@
 import { Button, Form, Input, Modal, notification } from 'antd';
 import React from 'react';
 import { useAuth } from '../hooks/UseAuth.ts';
-import type { ApiResponse } from "../models/response/ApiResponse.ts";
-import { useModalStore } from '../store/useRegisterModalStore.ts';
+import type { ApiResponse } from "../models/response/ApiResponse";
+import { useRegisterModalStore } from '../store/useRegisterModalStore';
 
 const RegistrationForm: React.FC = () => {
     const [form] = Form.useForm();
     const { registerMutation } = useAuth();
-    const { isRegistrationModalOpen, closeRegistrationModal } = useModalStore();
+    const { isRegistrationModalOpen, closeRegistrationModal } = useRegisterModalStore();
 
     const onFinish = (values: { email: string; password: string }) => {
         registerMutation.mutate(values, {
@@ -17,7 +17,7 @@ const RegistrationForm: React.FC = () => {
                     duration: 5,
                 });
                 form.resetFields();
-                closeRegistrationModal(); // Закрываем модалку после успешной регистрации
+                closeRegistrationModal();
             },
             onError: (error) => {
                 // @ts-ignore
@@ -33,7 +33,7 @@ const RegistrationForm: React.FC = () => {
     };
 
     const onFinishFailed = (errorInfo: any) => {
-        console.log('Validation failed:', errorInfo);
+
     };
 
     return (

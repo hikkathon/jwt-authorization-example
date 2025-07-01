@@ -14,8 +14,6 @@ export const registration = async (
 		const { email, password } = req.body;
 		const user = await authService.register(email, password);
 
-		authService.setAuthCookies(res, user.tokens.refreshToken);
-
 		ApiResponseBuilder.success(res, user, 200);
 	} catch (error) {
 		ApiResponseBuilder.error(

@@ -6,7 +6,7 @@ interface ModalStore {
     closeRegistrationModal: () => void;
 }
 
-export const useModalStore = create<ModalStore>((set) => ({
+export const useRegisterModalStore = create<ModalStore>((set) => ({
     isRegistrationModalOpen: false,
     openRegistrationModal: () => set({ isRegistrationModalOpen: true }),
     closeRegistrationModal: () => set({ isRegistrationModalOpen: false }),

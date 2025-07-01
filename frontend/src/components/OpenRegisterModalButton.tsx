@@ -1,9 +1,9 @@
 import React from 'react';
 import { Button } from 'antd';
-import { useModalStore } from '../store/useRegisterModalStore.ts';
+import { useRegisterModalStore } from '../store/useRegisterModalStore';
 
 export const OpenRegisterModalButton: React.FC = () => {
-    const openModal = useModalStore((state) => state.openRegistrationModal);
+    const openModal = useRegisterModalStore((state) => state.openRegistrationModal);
 
     return (
         <Button type="primary" onClick={openModal}>

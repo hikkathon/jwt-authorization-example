@@ -3,19 +3,19 @@ import AuthService from '../services/AuthService';
 // @ts-ignore
 import type { AxiosResponse } from 'axios';
 
-type TokensType = {
+export type TokensType = {
     accessToken: string;
     refreshToken: string;
 }
 
-type DataType = {
+export type DataType = {
     id: number;
     email: string;
     isActivate: boolean;
     tokens: TokensType;
 }
 
-type AuthResponseType = {
+export type AuthResponseType = {
     success: boolean;
     data: DataType;
 }
