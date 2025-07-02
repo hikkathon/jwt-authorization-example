@@ -4,6 +4,7 @@ import { type AuthResponseType, useAuth } from '../hooks/UseAuth.ts';
 import type { ApiResponse } from "../models/response/ApiResponse";
 import { useLoginModalStore } from '../store/useLoginModalStore';
 import { useAuthStore } from "../store/useAuthStore.ts";
+import { useQueryClient } from "@tanstack/react-query";
 
 const LoginForm: React.FC = () => {
     const [form] = Form.useForm();
@@ -11,11 +12,12 @@ const LoginForm: React.FC = () => {
     const {isLoginModalOpen, closeLoginModal} = useLoginModalStore();
     // @ts-ignore
     const {setAuth, setAccessToken, setEmail} = useAuthStore();
+    const queryClient = useQueryClient();
 
     const onFinish = (values: { email: string; password: string }) => {
         loginMutation.mutate(values, {
             onSuccess: (data) => {
-                const response = data.data as AuthResponseType;
+                const response = data as AuthResponseType;
                 notification.success({
                     message: 'Login successful!',
                     duration: 5,
@@ -25,6 +27,7 @@ const LoginForm: React.FC = () => {
                 setAuth(true);
                 setAccessToken(response.data.tokens.accessToken);
                 setEmail(response.data.email);
+                queryClient.setQueryData(['auth-data'], response);
             },
             onError: (error) => {
                 // @ts-ignore
@@ -39,10 +42,6 @@ const LoginForm: React.FC = () => {
         });
     };
 
-    const onFinishFailed = (errorInfo: any) => {
-
-    };
-
     return (
         <Modal
             title="Login"
@@ -55,7 +54,6 @@ const LoginForm: React.FC = () => {
                 name="login"
                 initialValues={{remember: true}}
                 onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
                 autoComplete="off"
             >
                 <Form.Item

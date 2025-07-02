@@ -32,10 +32,6 @@ const RegistrationForm: React.FC = () => {
         });
     };
 
-    const onFinishFailed = (errorInfo: any) => {
-
-    };
-
     return (
         <Modal
             title="Registration"
@@ -48,7 +44,6 @@ const RegistrationForm: React.FC = () => {
                 name="registration"
                 initialValues={{ remember: true }}
                 onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
                 autoComplete="off"
             >
                 <Form.Item
