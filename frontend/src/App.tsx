@@ -22,10 +22,12 @@ function App() {
     const onLogout = () => {
         logoutMutation.mutate();
         clearAuth();
+        localStorage.removeItem('auth-storage');
     };
 
     useEffect(() => {
-        if(isAuth)checkAuth.refetch();
+        if(localStorage.getItem('auth-storage'))
+            checkAuth.refetch();
     }, []);
 
     return (

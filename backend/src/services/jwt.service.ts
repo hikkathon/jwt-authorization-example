@@ -11,10 +11,10 @@ export class JWTService {
 
 	generateTokens(payload: string | Buffer | object) {
 		const accessToken = jwt.sign(payload, JWT_ACCESS_TOKEN_SECRET!, {
-			expiresIn: '1d',
+			expiresIn: '30s',
 		});
 		const refreshToken = jwt.sign(payload, JWT_REFRESH_TOKEN_SECRET!, {
-			expiresIn: '15d',
+			expiresIn: '1m',
 		});
 		return { accessToken, refreshToken };
 	}
@@ -33,19 +33,19 @@ export class JWTService {
 		return this.jwtRepo.removeToken(refreshToken);
 	}
 
-	validateRefreshToken(refreshToken: string): JwtPayload {
+	validateRefreshToken(refreshToken: string): JwtPayload | null {
 		try {
 			return jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SECRET!) as JwtPayload;
 		} catch (error) {
-			throw new Error('Unable to verify refresh token');
+			return null;
 		}
 	}
 
-	validateAccessToken(accessToken: string): JwtPayload {
+	validateAccessToken(accessToken: string): JwtPayload | null {
 		try {
 			return jwt.verify(accessToken, JWT_ACCESS_TOKEN_SECRET!) as JwtPayload;
 		} catch (error) {
-			throw new Error('Unable to verify access token');
+			return null;
 		}
 	}
 }
