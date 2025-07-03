@@ -1,4 +1,3 @@
-// AuthService.ts
 import api from "../http";
 // @ts-ignore
 import axios, { type AxiosResponse } from "axios";
@@ -23,8 +22,8 @@ export default class AuthService {
     // @ts-ignore
     static async checkAuth(): Promise<AuthResponseType> {
         try {
-            const res = await axios.get<AuthResponseType>('http://localhost:3000/api/v1/auth/refresh-token', {withCredentials: true});
-            return res.data;
+            const response = await axios.get<AuthResponseType>('http://localhost:3000/api/v1/auth/refresh-token', {withCredentials: true});
+            return response.data;
         } catch (error) {
             // @ts-ignore
             console.error(error.response.data);

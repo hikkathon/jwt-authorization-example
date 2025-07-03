@@ -1,4 +1,3 @@
-// useAuth.ts
 import { useMutation, useQuery } from '@tanstack/react-query';
 import AuthService from '../services/AuthService';
 // @ts-ignore
